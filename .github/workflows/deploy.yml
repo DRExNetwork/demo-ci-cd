@@ -21,15 +21,14 @@ jobs:
         run: |
           echo "$SSH_PRIVATE_KEY" > deploy_key.pem
           chmod 600 deploy_key.pem
-
-          # Usamos rsync en lugar de scp para excluir la carpeta .git
-          rsync -avz -e "ssh -o StrictHostKeyChecking=no -i deploy_key.pem" --exclude='.git/' $(pwd)/ $DEPLOY_USER@$DEPLOY_SERVER:~/demo-ci-cd
-
+          scp -o StrictHostKeyChecking=no -i deploy_key.pem -r $(pwd)/ $DEPLOY_USER@$DEPLOY_SERVER:~/demo-ci-cd
           ssh -o StrictHostKeyChecking=no -i deploy_key.pem $DEPLOY_USER@$DEPLOY_SERVER <<EOF
             cd ~/demo-ci-cd
             npm install
-            npm install pm2 -g
-            pm2 start index.js --name demo-ci-cd
+            if ! pm2 describe demo-ci-cd > /dev/null; then
+              pm2 start index.js --name demo-ci-cd
+            else
+              pm2 reload demo-ci-cd
+            fi
           EOF
-
           rm -f deploy_key.pem
