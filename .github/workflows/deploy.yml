@@ -19,8 +19,6 @@ jobs:
           DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         run: |
-          echo "DEPLOY_SERVER is $DEPLOY_SERVER"
-          echo "DEPLOY_USER is $DEPLOY_USER"
           echo "$SSH_PRIVATE_KEY" > deploy_key.pem
           chmod 600 deploy_key.pem
           scp -o StrictHostKeyChecking=no -i deploy_key.pem -r ./ $DEPLOY_USER@$DEPLOY_SERVER:~/demo-ci-cd
