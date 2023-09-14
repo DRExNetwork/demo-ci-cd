@@ -21,6 +21,6 @@ jobs:
         run: |
           echo "$SSH_PRIVATE_KEY" > deploy_key.pem
           chmod 600 deploy_key.pem
-          scp -o StrictHostKeyChecking=no -i deploy_key.pem -r ./ $DEPLOY_USER@$DEPLOY_SERVER:~/demo-ci-cd
+          scp -o StrictHostKeyChecking=no -i deploy_key.pem -r $(pwd)/ $DEPLOY_USER@$DEPLOY_SERVER:~/demo-ci-cd
           ssh -o StrictHostKeyChecking=no -i deploy_key.pem $DEPLOY_USER@$DEPLOY_SERVER "cd ~/demo-ci-cd && npm install && node index.js"
           rm -f deploy_key.pem
