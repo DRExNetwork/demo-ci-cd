@@ -1,0 +1,26 @@
+name: Deploy Node.js App to EC2
+
+on:
+  push:
+    branches:
+      - main # o el nombre de la rama que desees
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Deploy to EC2
+        env:
+          DEPLOY_SERVER: ${{ secrets.DEPLOY_SERVER }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          echo "$SSH_PRIVATE_KEY" > deploy_key.pem
+          chmod 600 deploy_key.pem
+          scp -o StrictHostKeyChecking=no -i deploy_key.pem -r ./ $DEPLOY_USER@$DEPLOY_SERVER:~/demo-ci-cd
+          ssh -o StrictHostKeyChecking=no -i deploy_key.pem $DEPLOY_USER@$DEPLOY_SERVER "cd ~/demo-ci-cd && npm install && node index.js"
+          rm -f deploy_key.pem
